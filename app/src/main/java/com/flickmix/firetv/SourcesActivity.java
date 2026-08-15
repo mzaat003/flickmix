@@ -242,7 +242,7 @@ public class SourcesActivity extends AppCompatActivity {
                     + (s.url.isEmpty() ? "" : "  \u2022  " + s.url)
                     + "  \u2022  " + count + " titles");
             h.state.setText(s.enabled ? "ON" : "OFF");
-            h.state.setTextColor(s.enabled ? 0xFF9BE300 : 0xFF6E6E6E);
+            h.state.setTextColor(s.enabled ? 0xFF7CFC00 : 0xFF6E6E6E);
 
             h.itemView.setOnClickListener(v -> showRowMenu(s, position));
         }

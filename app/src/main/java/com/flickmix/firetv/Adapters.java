@@ -184,10 +184,10 @@ public class Adapters {
             Source s = items.get(position);
             h.label.setText((position + 1) + "  " + s.name);
             h.icon.setImageResource(R.drawable.ic_sources);
-            h.icon.setColorFilter(s.enabled ? 0xFF9BE300 : 0xFF6E6E6E);
+            h.icon.setColorFilter(s.enabled ? 0xFF7CFC00 : 0xFF6E6E6E);
             h.itemView.setOnFocusChangeListener((v, has) -> {
                 h.label.setTextColor(has ? 0xFF000000 : (s.enabled ? 0xFFFFFFFF : 0xFF6E6E6E));
-                h.icon.setColorFilter(has ? 0xFF000000 : (s.enabled ? 0xFF9BE300 : 0xFF6E6E6E));
+                h.icon.setColorFilter(has ? 0xFF000000 : (s.enabled ? 0xFF7CFC00 : 0xFF6E6E6E));
             });
             h.itemView.setOnClickListener(v -> onPick.pick(s));
         }
@@ -254,7 +254,7 @@ public class Adapters {
             h.itemView.setOnFocusChangeListener((v, has) -> {
                 v.animate().scaleX(has ? 1.06f : 1f).scaleY(has ? 1.06f : 1f)
                         .setDuration(120).start();
-                h.title.setTextColor(has ? 0xFF9BE300 : 0xFFFFFFFF);
+                h.title.setTextColor(has ? 0xFF7CFC00 : 0xFFFFFFFF);
             });
             h.itemView.setOnClickListener(v -> onPick.pick(t));
         }
