@@ -41,17 +41,16 @@ public class DetailActivity extends AppCompatActivity {
 
         t.setText(title.title);
 
+        // Chips row per the reference art; the plain meta line keeps the source.
+        android.widget.LinearLayout chips = findViewById(R.id.detailChips);
+        addChip(chips, title.year);
+        addChip(chips, title.rating.isEmpty() ? "" : "\u2605 " + title.rating);
+        addChip(chips, title.runtime);
+        chips.setVisibility(chips.getChildCount() > 0
+                ? android.view.View.VISIBLE : android.view.View.GONE);
+
         Source src = Store.get().sourceById(title.sourceId);
-        StringBuilder m = new StringBuilder(title.metaLine());
-        if (!title.rating.isEmpty()) {
-            if (m.length() > 0) m.append("  \u2022  ");
-            m.append(title.rating);
-        }
-        if (src != null) {
-            if (m.length() > 0) m.append("  \u2022  ");
-            m.append(src.name);
-        }
-        meta.setText(m.toString());
+        meta.setText(src != null ? "Source:  " + src.name : "");
 
         desc.setText(title.description.isEmpty()
                 ? "No description provided for this entry."
@@ -106,5 +105,21 @@ public class DetailActivity extends AppCompatActivity {
     private void refreshListBtn() {
         boolean fav = Store.get().isFavourite(title.id);
         listBtn.setText(fav ? "\u2713  IN MY LIST" : "+  MY LIST");
+    }
+
+    private void addChip(android.widget.LinearLayout row, String text) {
+        if (text == null || text.trim().isEmpty()) return;
+        TextView chip = new TextView(this);
+        chip.setText(text.trim());
+        chip.setTextColor(0xFFFFFFFF);
+        chip.setTextSize(13);
+        chip.setBackgroundResource(R.drawable.pill_bg);
+        chip.setPadding(28, 10, 28, 10);
+        android.widget.LinearLayout.LayoutParams lp =
+                new android.widget.LinearLayout.LayoutParams(
+                        android.view.ViewGroup.LayoutParams.WRAP_CONTENT,
+                        android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
+        lp.rightMargin = 16;
+        row.addView(chip, lp);
     }
 }

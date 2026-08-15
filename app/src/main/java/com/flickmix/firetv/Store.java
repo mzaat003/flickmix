@@ -27,6 +27,7 @@ public class Store {
     private static final String K_TITLES = "titles";
     private static final String K_FAVS = "favs";
     private static final String K_RESUME = "resume";
+    private static final String K_DURATIONS = "durations";
     private static final String K_SEEDED = "demoSeeded";
 
     private static Store sInstance;
@@ -39,6 +40,8 @@ public class Store {
     private final List<String> favourites = new ArrayList<>();
     /** titleId -> position in ms */
     private final Map<String, Long> resume = new HashMap<>();
+    /** titleId -> last known duration in ms, so resume bars show a real percent */
+    private final Map<String, Long> durations = new HashMap<>();
 
     public static synchronized Store get() {
         if (sInstance == null) sInstance = new Store();
@@ -73,6 +76,13 @@ public class Store {
                 resume.put(k, r.optLong(k, 0));
             }
         } catch (Exception ignored) { }
+        try {
+            JSONObject d = new JSONObject(prefs.getString(K_DURATIONS, "{}"));
+            for (java.util.Iterator<String> it = d.keys(); it.hasNext(); ) {
+                String k = it.next();
+                durations.put(k, d.optLong(k, 0));
+            }
+        } catch (Exception ignored) { }
         modCount++;
     }
 
@@ -94,11 +104,15 @@ public class Store {
             JSONObject r = new JSONObject();
             for (Map.Entry<String, Long> e : resume.entrySet()) r.put(e.getKey(), e.getValue());
 
+            JSONObject d = new JSONObject();
+            for (Map.Entry<String, Long> e : durations.entrySet()) d.put(e.getKey(), e.getValue());
+
             prefs.edit()
                     .putString(K_SOURCES, a.toString())
                     .putString(K_TITLES, t.toString())
                     .putString(K_FAVS, f.toString())
                     .putString(K_RESUME, r.toString())
+                    .putString(K_DURATIONS, d.toString())
                     .apply();
         } catch (Exception ignored) { }
     }
@@ -306,10 +320,38 @@ public class Store {
      * saves (HOME press, screensaver), where the user has not finished
      * anything -- they were interrupted.
      */
-    public void savePosition(String titleId, long positionMs) {
+    public void savePosition(String titleId, long positionMs, long durationMs) {
         if (positionMs < 5_000L) return;   // nothing meaningful to resume
         resume.put(titleId, positionMs);
+        if (durationMs > 0) durations.put(titleId, durationMs);
         persist();
+    }
+
+    /** Percent watched for the poster progress bar; clamped so it stays visible. */
+    public int resumePercent(String titleId) {
+        Long p = resume.get(titleId);
+        if (p == null || p <= 0) return 0;
+        Long d = durations.get(titleId);
+        if (d == null || d <= 0) return 35;   // unknown duration: neutral marker
+        return (int) Math.max(2, Math.min(98, p * 100 / d));
+    }
+
+    /**
+     * The entry after this one within the same source, for Up Next autoplay.
+     * Returns null when the title is last (or gone), never wraps around.
+     */
+    public Title nextTitle(String titleId) {
+        Title current = titleById(titleId);
+        if (current == null) return null;
+        boolean seen = false;
+        for (Title t : titles) {
+            if (t.id.equals(titleId)) { seen = true; continue; }
+            if (seen && current.sourceId.equals(t.sourceId)
+                    && t.streamUrl != null && !t.streamUrl.trim().isEmpty()) {
+                return t;
+            }
+        }
+        return null;
     }
 
     public List<Title> continueWatching() {

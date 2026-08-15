@@ -37,6 +37,15 @@
             android:layout_height="wrap_content"
             android:textSize="34sp" />
 
+        <!-- Metadata chips row from the reference art: [2024] [PG-13] [2h 46m] -->
+        <LinearLayout
+            android:id="@+id/detailChips"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="10dp"
+            android:visibility="gone" />
+
         <TextView
             android:id="@+id/detailMeta"
             style="@style/FmBody"

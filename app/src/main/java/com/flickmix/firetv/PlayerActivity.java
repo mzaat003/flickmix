@@ -198,7 +198,7 @@ public class PlayerActivity extends AppCompatActivity {
                 }
                 if (state == Player.STATE_ENDED) {
                     Store.get().saveResume(title.id, 0, player.getDuration());
-                    finish();
+                    playNextOrFinish();
                 }
             }
 
@@ -239,6 +239,29 @@ public class PlayerActivity extends AppCompatActivity {
 
         ui.post(progressTick);
         scheduleHide();
+    }
+
+    /**
+     * Up Next: when a title plays to the end, continue with the next entry in
+     * the same source (reference-art behaviour). BACK still exits at any time;
+     * the last entry falls through to the detail page as before.
+     */
+    private void playNextOrFinish() {
+        Title next = Store.get().nextTitle(title.id);
+        if (next == null || player == null) {
+            finish();
+            return;
+        }
+        title = next;
+        playerTitle.setText(title.title);
+        playerMeta.setText(title.metaLine());
+        Source s = Store.get().sourceById(title.sourceId);
+        sourceLabel.setText(s != null ? s.name : "");
+        Toast.makeText(this, "Up Next:  " + title.title, Toast.LENGTH_LONG).show();
+        player.setMediaItem(MediaItem.fromUri(title.streamUrl));
+        player.prepare();
+        player.setPlayWhenReady(true);
+        showOverlay();
     }
 
     private void showError(PlaybackException error) {
@@ -613,7 +636,7 @@ public class PlayerActivity extends AppCompatActivity {
         if (dur > 0 && pos >= dur - 5_000L) {
             Store.get().saveResume(title.id, 0, dur);
         } else {
-            Store.get().savePosition(title.id, pos);
+            Store.get().savePosition(title.id, pos, dur);
         }
     }
 

@@ -227,12 +227,18 @@ public class Adapters {
         public void onBindViewHolder(@NonNull VH h, int position) {
             Title t = items.get(position);
             h.title.setText(t.title);
-            h.meta.setText(t.metaLine());
+
+            // Card meta line as in the reference art: "2024  •  ★ 7.1"
+            String meta = t.metaLine();
+            if (!t.rating.isEmpty()) {
+                meta = meta.isEmpty() ? "★ " + t.rating : meta + "  ★ " + t.rating;
+            }
+            h.meta.setText(meta);
 
             long resumeMs = Store.get().resumePosition(t.id);
             if (resumeMs > 0) {
                 h.progress.setVisibility(View.VISIBLE);
-                h.progress.setProgress(35);
+                h.progress.setProgress(Store.get().resumePercent(t.id));
             } else {
                 h.progress.setVisibility(View.GONE);
             }
