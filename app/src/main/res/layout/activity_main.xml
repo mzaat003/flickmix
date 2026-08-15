@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/fm_black">
+
+    <!-- ============ LEFT NAV RAIL ============ -->
+    <LinearLayout
+        android:id="@+id/navRail"
+        android:layout_width="@dimen/nav_width"
+        android:layout_height="0dp"
+        android:orientation="vertical"
+        android:background="@color/fm_panel"
+        android:paddingStart="@dimen/overscan_h"
+        android:paddingEnd="12dp"
+        android:paddingTop="@dimen/overscan_v"
+        android:paddingBottom="@dimen/overscan_v"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent">
+
+        <!-- Wordmark: FLICK white / MIX electric green -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="22dp">
+
+            <TextView
+                style="@style/FmDisplay"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/brand_flick"
+                android:textSize="30sp"
+                android:textColor="@color/fm_white" />
+
+            <TextView
+                style="@style/FmDisplay"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/brand_mix"
+                android:textSize="30sp"
+                android:textColor="@color/fm_green" />
+        </LinearLayout>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/navList"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:descendantFocusability="afterDescendants"
+            android:nextFocusRight="@+id/shelfList" />
+
+        <TextView
+            style="@style/FmDisplay"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/nav_sources"
+            android:textColor="@color/fm_green"
+            android:textSize="14sp"
+            android:layout_marginTop="24dp"
+            android:layout_marginBottom="8dp" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/navSourceList"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:descendantFocusability="afterDescendants" />
+
+        <TextView
+            android:id="@+id/addSourceBtn"
+            style="@style/FmButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/add_source"
+            android:layout_marginTop="8dp" />
+    </LinearLayout>
+
+    <!-- ============ TOP BAR ============ -->
+    <LinearLayout
+        android:id="@+id/topBar"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingTop="@dimen/overscan_v"
+        android:paddingBottom="10dp"
+        android:paddingStart="20dp"
+        android:paddingEnd="@dimen/overscan_h"
+        app:layout_constraintStart_toEndOf="@id/navRail"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TextView
+            style="@style/FmDisplay"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="SOURCES:"
+            android:textColor="@color/fm_green"
+            android:textSize="13sp"
+            android:layout_marginEnd="12dp" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/sourceTabs"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:descendantFocusability="afterDescendants" />
+
+        <TextView
+            android:id="@+id/clock"
+            style="@style/FmBody"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/fm_white"
+            android:layout_marginStart="16dp" />
+    </LinearLayout>
+
+    <!-- ============ SHELVES ============ -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/shelfList"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:clipToPadding="false"
+        android:paddingStart="20dp"
+        android:paddingBottom="@dimen/overscan_v"
+        android:descendantFocusability="afterDescendants"
+        app:layout_constraintStart_toEndOf="@id/navRail"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/topBar"
+        app:layout_constraintBottom_toBottomOf="parent" />
+
+    <!-- ============ EMPTY STATE ============ -->
+    <LinearLayout
+        android:id="@+id/emptyState"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:paddingStart="60dp"
+        android:paddingEnd="60dp"
+        android:visibility="gone"
+        app:layout_constraintStart_toEndOf="@id/navRail"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/topBar"
+        app:layout_constraintBottom_toBottomOf="parent">
+
+        <TextView
+            style="@style/FmDisplay"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/empty_title"
+            android:textSize="@dimen/text_title" />
+
+        <TextView
+            style="@style/FmBody"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/empty_body"
+            android:gravity="center"
+            android:lineSpacingExtra="4dp"
+            android:layout_marginTop="12dp" />
+
+        <TextView
+            android:id="@+id/emptyCta"
+            style="@style/FmButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/empty_cta"
+            android:layout_marginTop="22dp" />
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

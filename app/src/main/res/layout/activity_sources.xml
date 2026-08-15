@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/fm_black"
+    android:paddingStart="@dimen/overscan_h"
+    android:paddingEnd="@dimen/overscan_h"
+    android:paddingTop="@dimen/overscan_v"
+    android:paddingBottom="@dimen/overscan_v">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
+
+        <TextView
+            style="@style/FmDisplay"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="SOURCES"
+            android:textSize="@dimen/text_title" />
+
+        <TextView
+            android:id="@+id/slotCount"
+            style="@style/FmBody"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/fm_green" />
+    </LinearLayout>
+
+    <TextView
+        style="@style/FmBody"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
+        android:textSize="13sp"
+        android:text="Up to 10 slots. Point each one at media you are entitled to play: a direct video URL, an HLS or DASH stream, an M3U playlist from your own server or subscription, or a web page to open in the TV browser." />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="14dp">
+
+        <TextView
+            android:id="@+id/addBtn"
+            style="@style/FmButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="+ ADD SOURCE"
+            android:layout_marginEnd="10dp" />
+
+        <TextView
+            android:id="@+id/addTitleBtn"
+            style="@style/FmButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="+ ADD TITLE"
+            android:layout_marginEnd="10dp" />
+
+        <TextView
+            android:id="@+id/refreshBtn"
+            style="@style/FmButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="RELOAD PLAYLIST" />
+    </LinearLayout>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/sourceList"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:descendantFocusability="afterDescendants" />
+</LinearLayout>

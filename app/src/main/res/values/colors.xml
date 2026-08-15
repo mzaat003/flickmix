@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="fm_black">#FF000000</color>
+    <color name="fm_panel">#FF0B0B0B</color>
+    <color name="fm_card">#FF141414</color>
+    <color name="fm_stroke">#FF262626</color>
+
+    <color name="fm_green">#FF9BE300</color>
+    <color name="fm_green_dim">#FF5E8A00</color>
+    <color name="fm_green_glow">#669BE300</color>
+
+    <color name="fm_white">#FFFFFFFF</color>
+    <color name="fm_grey">#FFB3B3B3</color>
+    <color name="fm_grey_dim">#FF6E6E6E</color>
+    <color name="fm_scrim">#CC000000</color>
+</resources>

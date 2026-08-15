@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/fm_black">
+
+    <ImageView
+        android:id="@+id/backdrop"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="centerCrop"
+        android:alpha="0.45"
+        android:contentDescription="@null" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/scrim_bottom" />
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingStart="@dimen/overscan_h"
+        android:paddingEnd="200dp"
+        android:paddingBottom="@dimen/overscan_v"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent">
+
+        <TextView
+            android:id="@+id/detailTitle"
+            style="@style/FmDisplay"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="34sp" />
+
+        <TextView
+            android:id="@+id/detailMeta"
+            style="@style/FmBody"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp" />
+
+        <TextView
+            android:id="@+id/detailDesc"
+            style="@style/FmBody"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:maxLines="4"
+            android:ellipsize="end"
+            android:lineSpacingExtra="3dp" />
+
+        <TextView
+            android:id="@+id/detailUrl"
+            style="@style/FmBody"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:textSize="11sp"
+            android:textColor="@color/fm_grey_dim"
+            android:maxLines="1"
+            android:ellipsize="middle" />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="20dp">
+
+            <TextView
+                android:id="@+id/playBtn"
+                style="@style/FmButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="\u25B6  PLAY"
+                android:minWidth="150dp"
+                android:minHeight="50dp"
+                android:layout_marginEnd="12dp" />
+
+            <TextView
+                android:id="@+id/listBtn"
+                style="@style/FmButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="+  MY LIST"
+                android:minHeight="50dp"
+                android:layout_marginEnd="12dp" />
+
+            <TextView
+                android:id="@+id/removeBtn"
+                style="@style/FmButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="REMOVE"
+                android:minHeight="50dp" />
+        </LinearLayout>
+    </LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>
