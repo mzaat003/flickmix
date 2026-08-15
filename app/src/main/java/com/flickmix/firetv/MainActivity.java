@@ -67,6 +67,7 @@ public class MainActivity extends AppCompatActivity {
 
         findViewById(R.id.addSourceBtn).setOnClickListener(v -> openSources());
         findViewById(R.id.emptyCta).setOnClickListener(v -> openSources());
+        findViewById(R.id.searchBtn).setOnClickListener(v -> promptSearch());
 
         clockTick.run();
     }
@@ -181,7 +182,7 @@ public class MainActivity extends AppCompatActivity {
         emptyState.setVisibility(empty ? View.VISIBLE : View.GONE);
         shelfList.setVisibility(empty ? View.GONE : View.VISIBLE);
 
-        shelfList.setAdapter(new Adapters.ShelfAdapter(shelves, this::openDetail));
+        shelfList.setAdapter(new Adapters.ShelfAdapter(shelves, this::openDetail, this::onNav));
     }
 
     private List<Adapters.Shelf> buildShelves() {
@@ -212,8 +213,8 @@ public class MainActivity extends AppCompatActivity {
                 addIfAny(out, "Anime", st.titlesForSource(activeSourceId, Title.CAT_ANIME));
                 break;
             default: {
-                addIfAny(out, "Continue Watching", st.continueWatching());
-                addIfAny(out, "My List", st.favourites());
+                addIfAny(out, "Continue Watching", st.continueWatching(), Adapters.NAV_CONTINUE);
+                addIfAny(out, "My List", st.favourites(), Adapters.NAV_LIST);
 
                 List<Title> all = st.titlesForSource(activeSourceId);
                 if (!all.isEmpty()) {
@@ -224,9 +225,12 @@ public class MainActivity extends AppCompatActivity {
                     java.util.Collections.reverse(recent);
                     out.add(new Adapters.Shelf("Recently Added", recent));
                 }
-                addIfAny(out, "Movies", st.titlesForSource(activeSourceId, Title.CAT_MOVIE));
-                addIfAny(out, "TV Shows", st.titlesForSource(activeSourceId, Title.CAT_TV));
-                addIfAny(out, "Anime", st.titlesForSource(activeSourceId, Title.CAT_ANIME));
+                addIfAny(out, "Movies", st.titlesForSource(activeSourceId, Title.CAT_MOVIE),
+                        Adapters.NAV_MOVIES);
+                addIfAny(out, "TV Shows", st.titlesForSource(activeSourceId, Title.CAT_TV),
+                        Adapters.NAV_TV);
+                addIfAny(out, "Anime", st.titlesForSource(activeSourceId, Title.CAT_ANIME),
+                        Adapters.NAV_ANIME);
                 break;
             }
         }
@@ -235,6 +239,10 @@ public class MainActivity extends AppCompatActivity {
 
     private void addIfAny(List<Adapters.Shelf> out, String title, List<Title> items) {
         if (!items.isEmpty()) out.add(new Adapters.Shelf(title, items));
+    }
+
+    private void addIfAny(List<Adapters.Shelf> out, String title, List<Title> items, int navId) {
+        if (!items.isEmpty()) out.add(new Adapters.Shelf(title, items, navId));
     }
 
     private void openDetail(Title t) {

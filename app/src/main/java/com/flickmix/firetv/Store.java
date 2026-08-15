@@ -88,6 +88,18 @@ public class Store {
 
     public int modCount() { return modCount; }
 
+    // ---------- player preferences ----------
+
+    private static final String K_AUTOPLAY = "autoplayNext";
+
+    public boolean autoplayNext() {
+        return prefs == null || prefs.getBoolean(K_AUTOPLAY, true);
+    }
+
+    public void setAutoplayNext(boolean on) {
+        if (prefs != null) prefs.edit().putBoolean(K_AUTOPLAY, on).apply();
+    }
+
     private void persist() {
         modCount++;
         if (prefs == null) return;

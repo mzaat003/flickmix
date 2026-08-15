@@ -21,29 +21,16 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent">
 
-        <!-- Wordmark: FLICK white / MIX electric green -->
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginBottom="22dp">
-
-            <TextView
-                style="@style/FmDisplay"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/brand_flick"
-                android:textSize="30sp"
-                android:textColor="@color/fm_white" />
-
-            <TextView
-                style="@style/FmDisplay"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/brand_mix"
-                android:textSize="30sp"
-                android:textColor="@color/fm_green" />
-        </LinearLayout>
+        <!-- The hand-drawn 90s wordmark from the brand asset pack. Image-based
+             on purpose: no font substitute matches the graffiti look. -->
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="52dp"
+            android:layout_marginBottom="20dp"
+            android:scaleType="fitStart"
+            android:adjustViewBounds="true"
+            android:src="@drawable/wordmark"
+            android:contentDescription="@string/app_name" />
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/navList"
@@ -108,6 +95,18 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:descendantFocusability="afterDescendants" />
+
+        <ImageView
+            android:id="@+id/searchBtn"
+            android:layout_width="44dp"
+            android:layout_height="44dp"
+            android:layout_marginStart="14dp"
+            android:padding="10dp"
+            android:focusable="true"
+            android:clickable="true"
+            android:background="@drawable/focus_bg"
+            android:src="@drawable/ic_search"
+            android:contentDescription="@string/nav_search" />
 
         <TextView
             android:id="@+id/clock"

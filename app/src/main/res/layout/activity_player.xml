@@ -84,6 +84,16 @@
                 android:layout_height="wrap_content"
                 android:textColor="@color/fm_green"
                 android:textSize="14sp" />
+
+            <TextView
+                android:id="@+id/favBtn"
+                style="@style/FmButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="♡"
+                android:textSize="20sp"
+                android:minWidth="52dp"
+                android:layout_marginStart="16dp" />
         </LinearLayout>
 
         <!-- Centre transport -->
@@ -242,7 +252,7 @@
                     android:layout_gravity="center_vertical"
                     android:textSize="12sp"
                     android:textColor="@color/fm_grey_dim"
-                    android:text="OK play/pause   \u25C0 \u25B6 skip 10s   BACK exit" />
+                    android:text="OK play/pause   \u25C0 \u25B6 skip 10s   \u25B2 \u25BC controls   MENU quality   BACK exit" />
             </LinearLayout>
         </LinearLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>

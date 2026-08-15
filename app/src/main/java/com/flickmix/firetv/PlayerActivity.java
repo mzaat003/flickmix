@@ -58,7 +58,7 @@ public class PlayerActivity extends AppCompatActivity {
     private View overlay;
     private ProgressBar buffering;
     private SeekBar seekBar;
-    private TextView playBtn, timeCurrent, timeTotal, playerTitle, playerMeta, sourceLabel;
+    private TextView playBtn, timeCurrent, timeTotal, playerTitle, playerMeta, sourceLabel, favBtn;
 
     private Title title;
     private boolean scrubbing = false;
@@ -116,6 +116,14 @@ public class PlayerActivity extends AppCompatActivity {
         playerMeta.setText(title.metaLine());
         Source src = Store.get().sourceById(title.sourceId);
         sourceLabel.setText(src != null ? src.name : "");
+
+        favBtn = findViewById(R.id.favBtn);
+        refreshFav();
+        favBtn.setOnClickListener(v -> {
+            Store.get().toggleFavourite(title.id);
+            refreshFav();
+            showOverlay();
+        });
 
         findViewById(R.id.backBtn).setOnClickListener(v -> finish());
         playBtn.setOnClickListener(v -> togglePlay());
@@ -248,7 +256,7 @@ public class PlayerActivity extends AppCompatActivity {
      */
     private void playNextOrFinish() {
         Title next = Store.get().nextTitle(title.id);
-        if (next == null || player == null) {
+        if (next == null || player == null || !Store.get().autoplayNext()) {
             finish();
             return;
         }
@@ -257,11 +265,18 @@ public class PlayerActivity extends AppCompatActivity {
         playerMeta.setText(title.metaLine());
         Source s = Store.get().sourceById(title.sourceId);
         sourceLabel.setText(s != null ? s.name : "");
+        refreshFav();
         Toast.makeText(this, "Up Next:  " + title.title, Toast.LENGTH_LONG).show();
         player.setMediaItem(MediaItem.fromUri(title.streamUrl));
         player.prepare();
         player.setPlayWhenReady(true);
         showOverlay();
+    }
+
+    private void refreshFav() {
+        boolean fav = Store.get().isFavourite(title.id);
+        favBtn.setText(fav ? "♥" : "♡");
+        favBtn.setTextColor(fav ? 0xFF7CFC00 : 0xFFFFFFFF);
     }
 
     private void showError(PlaybackException error) {
@@ -444,22 +459,23 @@ public class PlayerActivity extends AppCompatActivity {
             if (t.title.equalsIgnoreCase(title.title) && !t.id.equals(title.id)) alts.add(t);
         }
 
-        if (alts.isEmpty()) {
-            Toast.makeText(this,
-                    "No alternate copy of this title is configured. Add one under Sources to "
-                            + "switch between them here.", Toast.LENGTH_LONG).show();
-            return;
-        }
-
-        String[] labels = new String[alts.size()];
+        final boolean auto = Store.get().autoplayNext();
+        final List<String> labels = new ArrayList<>();
         for (int i = 0; i < alts.size(); i++) {
             Source s = Store.get().sourceById(alts.get(i).sourceId);
-            labels[i] = "Source " + (i + 2) + "  \u2014  " + (s != null ? s.name : "Unknown");
+            labels.add("Source " + (i + 2) + "  \u2014  " + (s != null ? s.name : "Unknown"));
         }
+        labels.add("Autoplay next:  " + (auto ? "ON" : "OFF"));
 
         new AlertDialog.Builder(this, android.R.style.Theme_DeviceDefault_Dialog_Alert)
                 .setTitle("Video source")
-                .setItems(labels, (d, which) -> {
+                .setItems(labels.toArray(new String[0]), (d, which) -> {
+                    if (which == labels.size() - 1) {
+                        Store.get().setAutoplayNext(!auto);
+                        Toast.makeText(this, "Autoplay next "
+                                + (!auto ? "on" : "off"), Toast.LENGTH_SHORT).show();
+                        return;
+                    }
                     long pos = player.getCurrentPosition();
                     title = alts.get(which);
                     player.setMediaItem(MediaItem.fromUri(title.streamUrl));
@@ -468,6 +484,7 @@ public class PlayerActivity extends AppCompatActivity {
                     player.setPlayWhenReady(true);
                     Source s = Store.get().sourceById(title.sourceId);
                     sourceLabel.setText(s != null ? s.name : "");
+                    refreshFav();
                 })
                 .setOnDismissListener(d -> scheduleHide())
                 .show();

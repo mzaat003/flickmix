@@ -281,6 +281,13 @@ public class Adapters {
                 title = v.findViewById(R.id.posterTitle);
                 meta = v.findViewById(R.id.posterMeta);
                 progress = v.findViewById(R.id.posterProgress);
+                // Rounded poster corners as in the reference art.
+                image.setOutlineProvider(new android.view.ViewOutlineProvider() {
+                    @Override public void getOutline(View view, android.graphics.Outline outline) {
+                        outline.setRoundRect(0, 0, view.getWidth(), view.getHeight(), 18f);
+                    }
+                });
+                image.setClipToOutline(true);
             }
         }
     }
@@ -292,20 +299,30 @@ public class Adapters {
     public static class Shelf {
         public final String title;
         public final List<Title> items;
+        /** Nav id this shelf expands into via VIEW ALL, or -1 for none. */
+        public final int navId;
         public Shelf(String title, List<Title> items) {
+            this(title, items, -1);
+        }
+        public Shelf(String title, List<Title> items, int navId) {
             this.title = title;
             this.items = items;
+            this.navId = navId;
         }
     }
+
+    public interface OnViewAll { void viewAll(int navId); }
 
     public static class ShelfAdapter extends RecyclerView.Adapter<ShelfAdapter.VH> {
         private final List<Shelf> shelves;
         private final OnPick<Title> onPick;
+        private final OnViewAll onViewAll;
         private final RecyclerView.RecycledViewPool pool = new RecyclerView.RecycledViewPool();
 
-        public ShelfAdapter(List<Shelf> shelves, OnPick<Title> onPick) {
+        public ShelfAdapter(List<Shelf> shelves, OnPick<Title> onPick, OnViewAll onViewAll) {
             this.shelves = shelves;
             this.onPick = onPick;
+            this.onViewAll = onViewAll;
         }
 
         @NonNull @Override
@@ -325,17 +342,25 @@ public class Adapters {
             Shelf s = shelves.get(position);
             h.title.setText(s.title);
             h.count.setText(s.items.size() + " " + (s.items.size() == 1 ? "title" : "titles"));
+            if (s.navId >= 0 && onViewAll != null) {
+                h.viewAll.setVisibility(View.VISIBLE);
+                h.viewAll.setOnClickListener(v -> onViewAll.viewAll(s.navId));
+            } else {
+                h.viewAll.setVisibility(View.GONE);
+                h.viewAll.setOnClickListener(null);
+            }
             h.row.setAdapter(new PosterAdapter(s.items, onPick));
         }
 
         @Override public int getItemCount() { return shelves.size(); }
 
         static class VH extends RecyclerView.ViewHolder {
-            TextView title, count; RecyclerView row;
+            TextView title, count, viewAll; RecyclerView row;
             VH(View v) {
                 super(v);
                 title = v.findViewById(R.id.shelfTitle);
                 count = v.findViewById(R.id.shelfCount);
+                viewAll = v.findViewById(R.id.shelfViewAll);
                 row = v.findViewById(R.id.shelfRow);
             }
         }
