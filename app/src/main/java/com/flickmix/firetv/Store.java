@@ -27,6 +27,7 @@ public class Store {
     private static final String K_TITLES = "titles";
     private static final String K_FAVS = "favs";
     private static final String K_RESUME = "resume";
+    private static final String K_SEEDED = "demoSeeded";
 
     private static Store sInstance;
 
@@ -88,6 +89,66 @@ public class Store {
                     .putString(K_RESUME, r.toString())
                     .apply();
         } catch (Exception ignored) { }
+    }
+
+    /**
+     * First run only: preload one "Demo" source of openly licensed films
+     * (Blender Foundation open movies) plus Apple's public HLS test stream, so
+     * the app has playable content out of the box and every player menu --
+     * quality, subtitles, audio -- can be exercised before any real source is
+     * added. Deleting the Demo slot is permanent; it is never re-seeded.
+     */
+    public void seedDemoOnce() {
+        if (prefs == null || prefs.getBoolean(K_SEEDED, false)) return;
+        prefs.edit().putBoolean(K_SEEDED, true).apply();
+        if (!sources.isEmpty()) return;
+
+        Source demo = new Source(UUID.randomUUID().toString(), "Demo", Source.TYPE_DIRECT, "");
+        sources.add(demo);
+
+        addDemo(demo.id, "Big Buck Bunny", "2008", "10 min",
+                "Blender Foundation open movie. A giant rabbit takes gentle revenge "
+                        + "on three bullying rodents.",
+                "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
+                "https://storage.googleapis.com/gtv-videos-bucket/sample/images_480x270/BigBuckBunny.jpg");
+
+        addDemo(demo.id, "Sintel", "2010", "15 min",
+                "Blender Foundation open movie. A lone girl searches for the dragon "
+                        + "she once rescued. Adaptive HLS stream with multiple qualities.",
+                "https://bitdash-a.akamaihd.net/content/sintel/hls/playlist.m3u8",
+                "");
+
+        addDemo(demo.id, "Tears of Steel", "2012", "12 min",
+                "Blender Foundation open movie. Sci-fi short mixing live action and "
+                        + "CGI. Adaptive HLS stream.",
+                "https://demo.unified-streaming.com/k8s/features/stable/video/tears-of-steel/tears-of-steel.ism/.m3u8",
+                "https://storage.googleapis.com/gtv-videos-bucket/sample/images_480x270/TearsOfSteel.jpg");
+
+        addDemo(demo.id, "Elephants Dream", "2006", "11 min",
+                "The first Blender Foundation open movie: two characters explore a "
+                        + "strange mechanical world.",
+                "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4",
+                "https://storage.googleapis.com/gtv-videos-bucket/sample/images_480x270/ElephantsDream.jpg");
+
+        addDemo(demo.id, "Player Test Stream", "", "",
+                "Apple's public HLS example stream. Declares several video "
+                        + "qualities, alternate audio and closed captions, so the "
+                        + "Quality, Audio and Subtitles menus are all testable here.",
+                "https://devstreaming-cdn.apple.com/videos/streaming/examples/img_bipbop_adv_example_fmp4/master.m3u8",
+                "");
+
+        persist();
+    }
+
+    private void addDemo(String sourceId, String name, String year, String runtime,
+                         String description, String streamUrl, String posterUrl) {
+        Title t = new Title(UUID.randomUUID().toString(), sourceId, name, streamUrl);
+        t.year = year;
+        t.runtime = runtime;
+        t.description = description;
+        t.posterUrl = posterUrl;
+        t.category = Title.CAT_MOVIE;
+        titles.add(t);
     }
 
     // ---------- sources ----------

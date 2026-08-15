@@ -235,7 +235,7 @@ public class PlayerActivity extends AppCompatActivity {
             case PlaybackException.ERROR_CODE_DECODING_FORMAT_UNSUPPORTED:
                 detail = "This Fire Stick cannot decode that format.";
                 break;
-            case PlaybackException.ERROR_CODE_DRM_UNSUPPORTED_SCHEME:
+            case PlaybackException.ERROR_CODE_DRM_SCHEME_UNSUPPORTED:
             case PlaybackException.ERROR_CODE_DRM_CONTENT_ERROR:
                 detail = "This stream is DRM-protected. Play it in its own licensed app.";
                 break;
@@ -523,11 +523,11 @@ public class PlayerActivity extends AppCompatActivity {
                 break;
 
             case KeyEvent.KEYCODE_MEDIA_PLAY:
-                player.setPlayWhenReady(true);
+                if (player != null) player.setPlayWhenReady(true);
                 return true;
 
             case KeyEvent.KEYCODE_MEDIA_PAUSE:
-                player.setPlayWhenReady(false);
+                if (player != null) player.setPlayWhenReady(false);
                 return true;
 
             case KeyEvent.KEYCODE_MENU:
@@ -549,6 +549,16 @@ public class PlayerActivity extends AppCompatActivity {
     // ------------------------------------------------------------------
     // Lifecycle: release everything, every time
     // ------------------------------------------------------------------
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // onStop released the player to hand memory back while the app was in
+        // the background; coming back needs a fresh one or the screen is dead.
+        if (player == null && title != null) {
+            initPlayer();
+        }
+    }
 
     @Override
     protected void onPause() {

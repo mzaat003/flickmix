@@ -13,8 +13,11 @@
         android:name="android.software.leanback"
         android:required="false" />
 
+    <!-- Home media servers (NAS, Jellyfin, IPTV playlists) commonly serve over
+         plain http:// on the local network; Android blocks that by default. -->
     <application
         android:name=".App"
+        android:usesCleartextTraffic="true"
         android:allowBackup="true"
         android:banner="@drawable/banner"
         android:icon="@drawable/ic_flickmix"

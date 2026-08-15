@@ -21,7 +21,21 @@ public class App extends Application {
     public void onCreate() {
         super.onCreate();
         sInstance = this;
+
+        // WebActivity lives in the ":web" process. From Android 9 a WebView in a
+        // secondary process must claim its own data directory before first use,
+        // or creating it throws.
+        if (android.os.Build.VERSION.SDK_INT >= 28) {
+            String process = getProcessName();
+            if (process != null && !getPackageName().equals(process)) {
+                try {
+                    android.webkit.WebView.setDataDirectorySuffix("web");
+                } catch (Throwable ignored) { }
+            }
+        }
+
         Store.get().load(this);
+        Store.get().seedDemoOnce();
     }
 
     /** Called when the player takes over the screen: give video the memory. */
