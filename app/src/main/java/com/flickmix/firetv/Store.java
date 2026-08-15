@@ -136,8 +136,20 @@ public class Store {
      * quality, subtitles, audio -- can be exercised before any real source is
      * added. Deleting the Demo slot is permanent; it is never re-seeded.
      */
+    // The original seed pointed Tears of Steel at an engineering test stream
+    // that has bitrate/resolution/codec figures burned into the picture
+    // itself. Installs seeded before the fix get the clean encode swapped in.
+    private static final String OLD_TOS_URL =
+            "https://demo.unified-streaming.com/k8s/features/stable/video/tears-of-steel/tears-of-steel.ism/.m3u8";
+    private static final String NEW_TOS_URL =
+            "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4";
+
     public void seedDemoOnce() {
-        if (prefs == null || prefs.getBoolean(K_SEEDED, false)) return;
+        if (prefs == null) return;
+        if (prefs.getBoolean(K_SEEDED, false)) {
+            repairDemoStreams();
+            return;
+        }
         prefs.edit().putBoolean(K_SEEDED, true).apply();
         if (!sources.isEmpty()) return;
 
@@ -158,8 +170,8 @@ public class Store {
 
         addDemo(demo.id, "Tears of Steel", "2012", "12 min",
                 "Blender Foundation open movie. Sci-fi short mixing live action and "
-                        + "CGI. Adaptive HLS stream.",
-                "https://demo.unified-streaming.com/k8s/features/stable/video/tears-of-steel/tears-of-steel.ism/.m3u8",
+                        + "CGI.",
+                NEW_TOS_URL,
                 "https://storage.googleapis.com/gtv-videos-bucket/sample/images_480x270/TearsOfSteel.jpg");
 
         addDemo(demo.id, "Elephants Dream", "2006", "11 min",
@@ -171,11 +183,26 @@ public class Store {
         addDemo(demo.id, "Player Test Stream", "", "",
                 "Apple's public HLS example stream. Declares several video "
                         + "qualities, alternate audio and closed captions, so the "
-                        + "Quality, Audio and Subtitles menus are all testable here.",
+                        + "Quality, Audio and Subtitles menus are all testable here. "
+                        + "The numbers stamped on the picture are part of Apple's "
+                        + "test video itself, not the player.",
                 "https://devstreaming-cdn.apple.com/videos/streaming/examples/img_bipbop_adv_example_fmp4/master.m3u8",
                 "");
 
         persist();
+    }
+
+    private void repairDemoStreams() {
+        boolean changed = false;
+        for (Title t : titles) {
+            if (OLD_TOS_URL.equals(t.streamUrl)) {
+                t.streamUrl = NEW_TOS_URL;
+                t.description = "Blender Foundation open movie. Sci-fi short "
+                        + "mixing live action and CGI.";
+                changed = true;
+            }
+        }
+        if (changed) persist();
     }
 
     private void addDemo(String sourceId, String name, String year, String runtime,

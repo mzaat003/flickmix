@@ -10,6 +10,7 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -56,6 +57,9 @@ public class WebActivity extends AppCompatActivity {
         s.setBuiltInZoomControls(false);
         s.setMediaPlaybackRequiresUserGesture(true);
         s.setCacheMode(WebSettings.LOAD_DEFAULT);
+        // Match mobile Chrome's compatibility posture: an https page may still
+        // pull its video over http, which a strict WebView silently drops.
+        s.setMixedContentMode(WebSettings.MIXED_CONTENT_COMPATIBILITY_MODE);
         // Identify honestly. Do not impersonate another browser to slip past
         // a site's device or bot checks.
         s.setUserAgentString(s.getUserAgentString() + " FlickMix/1.0");
@@ -68,6 +72,18 @@ public class WebActivity extends AppCompatActivity {
             @Override
             public boolean shouldOverrideUrlLoading(WebView v, WebResourceRequest r) {
                 return false; // follow links normally
+            }
+
+            // A page that fails to load must say so; a silent black screen
+            // reads as a broken app. (Legacy signature: it is the one that
+            // fires only for the main page, and it works on every API level
+            // this app supports.)
+            @SuppressWarnings("deprecation")
+            @Override
+            public void onReceivedError(WebView v, int code, String desc, String failingUrl) {
+                if (isFinishing() || isDestroyed()) return;
+                Toast.makeText(WebActivity.this,
+                        "That site did not load: " + desc, Toast.LENGTH_LONG).show();
             }
         });
 
