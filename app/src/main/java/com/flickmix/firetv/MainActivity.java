@@ -71,11 +71,21 @@ public class MainActivity extends AppCompatActivity {
         clockTick.run();
     }
 
+    private int lastSeenMod = -1;
+
     @Override
     protected void onResume() {
         super.onResume();
-        Store.get().load(this);
-        rebuild();
+        // The in-process Store singleton is always current (App loads it at
+        // startup), so no re-read from disk here -- that would re-parse the
+        // whole catalog JSON on the main thread on every resume. Rebuild the
+        // shelves only when something actually changed, so BACK from a detail
+        // page keeps D-pad focus and scroll position instead of resetting.
+        int mod = Store.get().modCount();
+        if (mod != lastSeenMod) {
+            lastSeenMod = mod;
+            rebuild();
+        }
     }
 
     @Override

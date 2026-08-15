@@ -74,6 +74,15 @@ public class PlayerActivity extends AppCompatActivity {
 
     private final Runnable hideOverlay = () -> setOverlayVisible(false);
 
+    private final Runnable commitSeek = new Runnable() {
+        @Override public void run() {
+            if (player != null && player.getDuration() > 0) {
+                player.seekTo(player.getDuration() * seekBar.getProgress() / 1000L);
+            }
+            scrubbing = false;
+        }
+    };
+
     // ------------------------------------------------------------------
 
     @Override
@@ -118,18 +127,29 @@ public class PlayerActivity extends AppCompatActivity {
         findViewById(R.id.speedBtn).setOnClickListener(v -> showSpeedMenu());
         findViewById(R.id.serverBtn).setOnClickListener(v -> showSourceMenu());
 
+        // D-pad LEFT/RIGHT on a focused SeekBar changes progress with
+        // fromUser=true but never fires the touch-tracking callbacks -- and the
+        // Fire remote has no touch at all. So the seek is committed from
+        // onProgressChanged with a short debounce; touch release commits
+        // immediately.
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override public void onProgressChanged(SeekBar sb, int p, boolean fromUser) {
-                if (fromUser && player != null && player.getDuration() > 0) {
+                if (!fromUser) return;
+                scrubbing = true;
+                if (player != null && player.getDuration() > 0) {
                     timeCurrent.setText(fmt(player.getDuration() * p / 1000L));
                 }
+                ui.removeCallbacks(commitSeek);
+                ui.postDelayed(commitSeek, 600L);
+                showOverlay();
             }
-            @Override public void onStartTrackingTouch(SeekBar sb) { scrubbing = true; }
+            @Override public void onStartTrackingTouch(SeekBar sb) {
+                scrubbing = true;
+                ui.removeCallbacks(commitSeek);
+            }
             @Override public void onStopTrackingTouch(SeekBar sb) {
-                scrubbing = false;
-                if (player != null && player.getDuration() > 0) {
-                    player.seekTo(player.getDuration() * sb.getProgress() / 1000L);
-                }
+                ui.removeCallbacks(commitSeek);
+                commitSeek.run();
             }
         });
 
@@ -584,7 +604,17 @@ public class PlayerActivity extends AppCompatActivity {
 
     private void saveResume() {
         if (player == null || title == null) return;
-        Store.get().saveResume(title.id, player.getCurrentPosition(), player.getDuration());
+        long pos = player.getCurrentPosition();
+        long dur = player.getDuration();
+        // This is a live mid-session save (HOME press, screensaver, source
+        // switch), not proof the user finished the film -- so keep the exact
+        // position. Only a position within the last 5s counts as done here;
+        // the real "watched to the end" cleanup happens on STATE_ENDED.
+        if (dur > 0 && pos >= dur - 5_000L) {
+            Store.get().saveResume(title.id, 0, dur);
+        } else {
+            Store.get().savePosition(title.id, pos);
+        }
     }
 
     private void releasePlayer() {

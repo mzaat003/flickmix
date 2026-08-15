@@ -22,20 +22,40 @@ public class App extends Application {
         super.onCreate();
         sInstance = this;
 
-        // WebActivity lives in the ":web" process. From Android 9 a WebView in a
-        // secondary process must claim its own data directory before first use,
-        // or creating it throws.
-        if (android.os.Build.VERSION.SDK_INT >= 28) {
-            String process = getProcessName();
-            if (process != null && !getPackageName().equals(process)) {
+        String process = currentProcessName();
+        boolean mainProcess = process == null || getPackageName().equals(process);
+
+        if (!mainProcess) {
+            // WebActivity's ":web" process. From Android 9 a WebView in a
+            // secondary process must claim its own data directory before first
+            // use, or creating it throws. And this process must never touch
+            // the Store: SharedPreferences is not multi-process safe, and a
+            // second writer means whole-file last-writer-wins data loss.
+            if (android.os.Build.VERSION.SDK_INT >= 28) {
                 try {
                     android.webkit.WebView.setDataDirectorySuffix("web");
                 } catch (Throwable ignored) { }
             }
+            return;
         }
 
         Store.get().load(this);
         Store.get().seedDemoOnce();
+    }
+
+    private String currentProcessName() {
+        if (android.os.Build.VERSION.SDK_INT >= 28) return getProcessName();
+        // Pre-P (Fire OS 5/6 sticks): the kernel-reported command line is the
+        // process name.
+        try (java.io.BufferedReader r = new java.io.BufferedReader(
+                new java.io.FileReader("/proc/self/cmdline"))) {
+            StringBuilder sb = new StringBuilder(64);
+            int c;
+            while ((c = r.read()) > 0) sb.append((char) c);
+            return sb.toString().trim();
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     /** Called when the player takes over the screen: give video the memory. */

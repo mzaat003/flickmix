@@ -74,7 +74,7 @@ public class SourcesActivity extends AppCompatActivity {
                 type == Source.TYPE_M3U ? "https://\u2026/playlist.m3u"
                         : type == Source.TYPE_WEB ? "https://\u2026"
                         : "(not needed for Direct)",
-                InputType.TYPE_TEXT_VARIATION_URI);
+                InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_URI);
 
         LinearLayout wrap = new LinearLayout(this);
         wrap.setOrientation(LinearLayout.VERTICAL);
@@ -123,9 +123,9 @@ public class SourcesActivity extends AppCompatActivity {
     private void collectTitleDetails(final Source source) {
         final EditText nameField = field("Title", InputType.TYPE_CLASS_TEXT);
         final EditText urlField = field("Direct media URL (.mp4 / .m3u8 / .mpd)",
-                InputType.TYPE_TEXT_VARIATION_URI);
+                InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_URI);
         final EditText posterField = field("Poster image URL (optional)",
-                InputType.TYPE_TEXT_VARIATION_URI);
+                InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_URI);
         final EditText yearField = field("Year (optional)", InputType.TYPE_CLASS_NUMBER);
 
         LinearLayout wrap = new LinearLayout(this);
@@ -189,8 +189,11 @@ public class SourcesActivity extends AppCompatActivity {
         Toast.makeText(this, "Loading " + source.name + "\u2026", Toast.LENGTH_SHORT).show();
         M3uParser.load(source.id, source.url, new M3uParser.Callback() {
             @Override public void onLoaded(List<Title> titles) {
+                // Apply the data even if the user already backed out...
                 Store.get().clearTitlesForSource(source.id);
                 Store.get().addTitles(titles);
+                // ...but never touch the UI of a dead activity.
+                if (isFinishing() || isDestroyed()) return;
                 Toast.makeText(SourcesActivity.this,
                         "Loaded " + titles.size() + " entries from " + source.name,
                         Toast.LENGTH_LONG).show();
@@ -198,6 +201,9 @@ public class SourcesActivity extends AppCompatActivity {
             }
 
             @Override public void onError(String message) {
+                // The fetch can outlive this screen by ~35s; showing a dialog
+                // against a destroyed activity throws BadTokenException.
+                if (isFinishing() || isDestroyed()) return;
                 new AlertDialog.Builder(SourcesActivity.this,
                         android.R.style.Theme_DeviceDefault_Dialog_Alert)
                         .setTitle("Could not load playlist")

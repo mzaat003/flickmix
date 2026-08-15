@@ -31,6 +31,17 @@ public class M3uParser {
     private static final ExecutorService POOL = Executors.newSingleThreadExecutor();
     private static final Handler MAIN = new Handler(Looper.getMainLooper());
 
+    /**
+     * Hard bounds for a 1 GB-RAM device. A text playlist line is never
+     * kilobytes long -- hitting MAX_LINE means someone pointed a Playlist slot
+     * at a binary file (an .mp4, a .ts stream), and reading on would OOM the
+     * app. MAX_TITLES keeps a 100k-entry IPTV export from freezing the UI and
+     * pinning megabytes of JSON in memory forever.
+     */
+    private static final int MAX_LINE = 8_192;
+    private static final int MAX_TITLES = 5_000;
+    private static final int MAX_LINES = 200_000;
+
     public static void load(final String sourceId, final String playlistUrl, final Callback cb) {
         POOL.execute(() -> {
             HttpURLConnection conn = null;
@@ -54,8 +65,10 @@ public class M3uParser {
                 String pendingName = null;
                 String pendingLogo = null;
                 String pendingGroup = null;
+                int lines = 0;
 
-                while ((line = r.readLine()) != null) {
+                while ((line = readBoundedLine(r)) != null) {
+                    if (++lines > MAX_LINES || out.size() >= MAX_TITLES) break;
                     line = line.trim();
                     if (line.isEmpty()) continue;
 
@@ -96,6 +109,26 @@ public class M3uParser {
 
     private static void fail(Callback cb, String msg) {
         MAIN.post(() -> cb.onError(msg));
+    }
+
+    /**
+     * readLine() with a ceiling. BufferedReader.readLine() on a giant binary
+     * with no newlines builds one enormous String and OOMs the app before any
+     * length check could run; this reads char by char and aborts early.
+     */
+    private static String readBoundedLine(BufferedReader r) throws java.io.IOException {
+        StringBuilder sb = new StringBuilder(96);
+        int c;
+        while ((c = r.read()) != -1) {
+            if (c == '\n') return sb.toString();
+            if (c == '\r') continue;
+            if (sb.length() >= MAX_LINE) {
+                throw new java.io.IOException(
+                        "This is not a text playlist (line longer than " + MAX_LINE + " chars)");
+            }
+            sb.append((char) c);
+        }
+        return sb.length() > 0 ? sb.toString() : null;
     }
 
     private static String attr(String line, String key) {

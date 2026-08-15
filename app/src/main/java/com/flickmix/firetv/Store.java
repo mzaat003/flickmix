@@ -32,6 +32,8 @@ public class Store {
     private static Store sInstance;
 
     private SharedPreferences prefs;
+    /** Bumped on every mutation so screens can skip needless rebuilds. */
+    private int modCount;
     private final List<Source> sources = new ArrayList<>();
     private final List<Title> titles = new ArrayList<>();
     private final List<String> favourites = new ArrayList<>();
@@ -49,25 +51,35 @@ public class Store {
         titles.clear();
         favourites.clear();
         resume.clear();
+        // Each section fails independently: one corrupt value must not wipe
+        // the rest (a shared catch would drop titles/favourites/resume and the
+        // next persist() would make the loss permanent).
         try {
             JSONArray a = new JSONArray(prefs.getString(K_SOURCES, "[]"));
             for (int i = 0; i < a.length(); i++) sources.add(Source.fromJson(a.getJSONObject(i)));
-
+        } catch (Exception ignored) { }
+        try {
             JSONArray t = new JSONArray(prefs.getString(K_TITLES, "[]"));
             for (int i = 0; i < t.length(); i++) titles.add(Title.fromJson(t.getJSONObject(i)));
-
+        } catch (Exception ignored) { }
+        try {
             JSONArray f = new JSONArray(prefs.getString(K_FAVS, "[]"));
             for (int i = 0; i < f.length(); i++) favourites.add(f.getString(i));
-
+        } catch (Exception ignored) { }
+        try {
             JSONObject r = new JSONObject(prefs.getString(K_RESUME, "{}"));
             for (java.util.Iterator<String> it = r.keys(); it.hasNext(); ) {
                 String k = it.next();
                 resume.put(k, r.optLong(k, 0));
             }
         } catch (Exception ignored) { }
+        modCount++;
     }
 
+    public int modCount() { return modCount; }
+
     private void persist() {
+        modCount++;
         if (prefs == null) return;
         try {
             JSONArray a = new JSONArray();
@@ -286,6 +298,17 @@ public class Store {
         } else {
             resume.put(titleId, positionMs);
         }
+        persist();
+    }
+
+    /**
+     * Store the exact position with no "done" heuristic. Used for lifecycle
+     * saves (HOME press, screensaver), where the user has not finished
+     * anything -- they were interrupted.
+     */
+    public void savePosition(String titleId, long positionMs) {
+        if (positionMs < 5_000L) return;   // nothing meaningful to resume
+        resume.put(titleId, positionMs);
         persist();
     }
 
