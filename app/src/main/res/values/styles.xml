@@ -12,7 +12,7 @@
         <item name="android:windowContentOverlay">@null</item>
     </style>
 
-    <!-- Heading face: Permanent Marker (Apache 2.0) -- the 90s hand-drawn
+    <!-- Heading face: Permanent Marker (Apache 2.0), the 90s hand-drawn
          marker look from the brand references. Headings, nav, buttons and
          labels only; body copy stays on a readable TV face on purpose. -->
     <style name="FmDisplay">
