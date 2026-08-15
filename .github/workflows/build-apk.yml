@@ -9,8 +9,12 @@ name: Build FlickMix APK
 
 on:
   push:
-    branches: [ main, master ]
+    branches: [ main, master, 'claude/**' ]
   workflow_dispatch:        # lets you press "Run workflow" by hand
+
+# Needed so the build can commit the finished APK back into the repository.
+permissions:
+  contents: write
 
 jobs:
   build:
@@ -62,3 +66,19 @@ jobs:
           name: FlickMix_FireTV
           path: out/FlickMix_FireTV.apk
           retention-days: 30
+
+      # Also commit the verified APK into the repository itself. The
+      # Artifacts link above needs a GitHub login and expires; a file in the
+      # repo can be fetched over plain git or the raw file URL from any
+      # device, including the Downloader app on the Fire Stick.
+      # (Pushes made with GITHUB_TOKEN never retrigger workflows, and
+      # [skip ci] is added as a second guard, so this cannot loop.)
+      - name: Publish APK into the repository
+        run: |
+          mkdir -p release
+          cp out/FlickMix_FireTV.apk release/FlickMix_FireTV.apk
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add release/FlickMix_FireTV.apk
+          git commit -m "Publish built FlickMix_FireTV.apk [skip ci]"
+          git push origin HEAD:${{ github.ref_name }}
