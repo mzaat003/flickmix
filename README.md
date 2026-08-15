@@ -123,12 +123,11 @@ no computer required.
 
 ## Branding notes
 
-The wordmark is FLICK in white, MIX in electric green, set in
-`sans-serif-black` italic as a stand-in. To get the hand-drawn 90s sketchbook
-look from the logo reference, drop a TTF at
-`app/src/main/res/font/flickmix_display.ttf` and point `FmDisplay` in
-`values/styles.xml` at `@font/flickmix_display`. Headings only — body and
-metadata stay on the readable TV face on purpose.
+The nav-rail wordmark is the hand-drawn FLICKMIX artwork from the brand asset
+pack (`res/drawable-xhdpi/wordmark.png`), background knocked out to
+transparent. Headings, nav, buttons and labels are set in Permanent Marker
+(`res/font/flickmix_display.ttf`, Apache 2.0) for the 90s marker look; body
+and metadata stay on the readable TV face on purpose.
 
-For the Fire TV launcher tile, replace `res/drawable/banner.xml` with a
-320×180 PNG at `res/drawable-xhdpi/banner.png`.
+The Fire TV launcher tile is the supplied 320×180 brand banner at
+`res/drawable-xhdpi/banner.png`.

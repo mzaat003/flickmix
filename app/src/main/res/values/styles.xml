@@ -12,11 +12,11 @@
         <item name="android:windowContentOverlay">@null</item>
     </style>
 
-    <!-- Heading face. Drop a 90s-sketchbook TTF at res/font/flickmix_display.ttf
-         and change android:fontFamily below to @font/flickmix_display. -->
+    <!-- Heading face: Permanent Marker (Apache 2.0) -- the 90s hand-drawn
+         marker look from the brand references. Headings, nav, buttons and
+         labels only; body copy stays on a readable TV face on purpose. -->
     <style name="FmDisplay">
-        <item name="android:textStyle">bold|italic</item>
-        <item name="android:fontFamily">sans-serif-black</item>
+        <item name="android:fontFamily">@font/flickmix_display</item>
         <item name="android:textColor">@color/fm_white</item>
         <item name="android:letterSpacing">0.02</item>
     </style>
@@ -31,7 +31,7 @@
     <style name="FmButton">
         <item name="android:background">@drawable/btn_bg</item>
         <item name="android:textColor">@color/fm_white</item>
-        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:fontFamily">@font/flickmix_display</item>
         <item name="android:textSize">14sp</item>
         <item name="android:paddingLeft">20dp</item>
         <item name="android:paddingRight">20dp</item>

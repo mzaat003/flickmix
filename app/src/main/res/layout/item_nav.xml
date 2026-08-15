@@ -28,6 +28,6 @@
         android:textSize="14sp"
         android:maxLines="1"
         android:ellipsize="end"
-        android:fontFamily="sans-serif-medium"
+        android:fontFamily="@font/flickmix_display"
         android:letterSpacing="0.04" />
 </LinearLayout>
