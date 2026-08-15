@@ -43,6 +43,18 @@ jobs:
           cp app/build/outputs/apk/debug/app-debug.apk out/FlickMix_FireTV.apk
           ls -lh out/
 
+      # Prove the APK is complete before publishing it: compiled code, binary
+      # manifest, resource table, brand banner and launcher icon all present.
+      - name: Verify APK contents
+        run: |
+          unzip -l out/FlickMix_FireTV.apk
+          for needle in classes.dex AndroidManifest.xml resources.arsc banner ic_launcher; do
+            unzip -l out/FlickMix_FireTV.apk | grep -q "$needle" \
+              || { echo "MISSING FROM APK: $needle"; exit 1; }
+          done
+          echo "APK verification passed: all required entries present"
+          sha256sum out/FlickMix_FireTV.apk
+
       # The APK appears under the workflow run's "Artifacts" section.
       - name: Upload the APK
         uses: actions/upload-artifact@v4
